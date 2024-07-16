@@ -60,7 +60,7 @@ function renderListProduct() {
     products.forEach(product => {
         const productItem = $(`<div class="col-3">
         <div class="card">
-            <img src="${product.image}" class="card-img-top" alt="">
+            <img src="${product.image}" class="card-img-top" alt="Hình ảnh sản phẩm">
             <div class="card-body">
                 <h5 class="card-title">${product.name}</h5>
                 <p class="card-text">${product.info}</p>
