@@ -36,8 +36,7 @@ $(document).ready(function () {
       success: function (response) {
         if (response) {
           const $categories = $('#categories');
-          ;
-          renderListCategory(response, $categories);
+          populateManufactureSelect(response, $categories);
         }
       },
       error: function (error) {
@@ -112,17 +111,15 @@ $(document).ready(function () {
 
   $("#saveChanges").click(function () {
     const imageInput = $("#image")[0];
-
     const product = {
-      id: $("#id").val(),
       name: $("#name").val(),
       price: $("#price").val(),
       info: $("#info").val(),
       detail: $("#detail").val(),
-      star: $("#star").val(),
-      image: imageInput.files[0] ? URL.createObjectURL(imageInput.files[0]) : $('#imagePreview').attr('src'),
-      manufacture: $("#manufacture").val(),
-      categories: $("#categories").val(),
+      ratingStar: $("#star").val(),
+      imageName: imageInput.files[0] ? imageInput.files[0].name : null,
+      manufacturerId: $("#manufacture").val(),
+      categoryId: $("#categories").val(),
     };
 
     if (product.image) {
@@ -143,10 +140,23 @@ $(document).ready(function () {
 
       localStorage.removeItem("isEditMode");
     } else {
+      ajaxRequest({
+        url: "http://localhost:8080/api/v1/products",
+        method: "POST",
+        data: product,
+        success: function (response) {
+          if (response) {
+            $("#productModal").modal("hide");
+            products.push(response);
+            renderListProduct(products);
+          }
+        },
+        error: function (error) {
+          console.log("error 11111", error);
+        },
+      })
       products.push(product);
     }
-
-    localStorage.setItem("products", JSON.stringify(products));
     $("#productModal").modal("hide");
     renderListProduct(products);
   });
@@ -163,6 +173,7 @@ function populateManufactureSelect(options, targetSelect) {
 
   // Iterate over the options array and create option elements
   options.forEach(option => {
+    console.log('option', option);
     const $option = $('<option>', {
       value: option.id,
       text: option.name
@@ -172,7 +183,6 @@ function populateManufactureSelect(options, targetSelect) {
 }
 
 function populateForm(product) {
-  $("#id").val(product.id).prop("disabled", true);
   $("#name").val(product.name);
   $("#price").val(product.price);
   $("#info").val(product.info);
@@ -183,19 +193,21 @@ function populateForm(product) {
 }
 function editProduct(id) {
   currentProductId = id;
-  if (!id) return;
-  const products = JSON.parse(localStorage.getItem("products")) || [];
-  const product = products.find(
-    (product) => parseInt(product.id) === parseInt(id)
-  );
-  if (!product) {
-    alert("Product not found!");
-    return;
-  }
+  ajaxRequest({
+    url: `http://localhost:8080/api/v1/products/${id}`,
+    method: "GET",
+    success: function (response) {
+      if (response) {
+        populateForm(response);
+      }
+    },
+    error: function (error) {
+      console.log("error 11111", error);
+    },
+  })
   localStorage.setItem("isEditMode", 1);
   $("#modalTitle").text("Edit Product");
   $("#saveChanges").text("Edit");
-  populateForm(product);
   $("#productModal").modal("show");
 }
 
