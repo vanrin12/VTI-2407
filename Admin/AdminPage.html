@@ -59,16 +59,16 @@
             <h4 style="font-weight: bold">Danh mục</h4>
             <ul class="list-group">
               <li class="list-group-item">
-                <button type="button" class="btnClass">Manufacturer</button>
+                <button type="button" class="btnClass" onclick="handleShowManufacturer()">Manufacturer</button>
               </li>
               <li class="list-group-item">
-                <button type="button" class="btnClass">Category</button>
+                <button type="button" class="btnClass" onclick="handleShowCategory()">Category</button>
               </li>
               <li class="list-group-item">
-                <button type="button" class="btnClass">Product</button>
+                <button type="button" class="btnClass" onclick="handleShowProduct()">Product</button>
               </li>
               <li class="list-group-item">
-                <button type="button" class="btnClass">Account</button>
+                <button type="button" class="btnClass" onclick="handleShowAccount()">Account</button>
               </li>
             </ul>
 
@@ -97,17 +97,20 @@
 
             <div class="panel panel-default">
               <div class="panel-body">
-                <select class="form-control">
+                <select class="form-control" id="categorySearch">
                   <option value="">-- Select Category --</option>
-                  <option value="1">Điện thoại</option>
-                  <option value="2">Tablet</option>
-                  <option value="3">Laptop</option>
+                  <option value="phone">Điện thoại</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="laptop">Laptop</option>
                 </select>
                 <br />
                 <button type="button" class="btn btn-default">Fillter</button>
               </div>
             </div>
           </div>
+
+
+
           <div class="col-xs-10 col-sm-10 col-md-10">
             <button type="button" class="btn btn-primary mt-4" id="addProductButton">
               Add New Product</button>
@@ -195,9 +198,9 @@
                 <div class="mb-3">
                   <label for="categories" class="form-label">Categories</label>
                   <select class="form-select" id="categories">
-                    <option value="phone">Phone</option>
+                    <option value="phone">Điện thoại</option>
                     <option value="tablet">Tablet</option>
-                    <option value="pc">PC</option>
+                    <option value="laptop">Laptop</option>
                   </select>
                 </div>
               </form>
@@ -223,6 +226,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
     integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
     crossorigin="anonymous"></script>
+  <script type="text/javascript" src="../../common/index.js"></script>
+
   <script type="text/javascript" src="./AdminPage.js"></script>
 </body>
 

@@ -1,5 +1,67 @@
 let currentProductId = null;
+const categoryList = [
+  {
+    id: 1,
+    value: "Điện thoại",
+  },
+  {
+
+    id: 2,
+    valiue: "Tablet",
+  }, {
+    id: 3,
+    valiue: "Laptop",
+  }
+]
 $(document).ready(function () {
+  function getProducts() {
+    ajaxRequest({
+      url: "http://localhost:8080/api/v1/products",
+      success: function (response) {
+        if (response) {
+          const products = response?.content;
+          renderListProduct(products);
+        }
+      },
+      error: function (error) {
+        console.log("error 11111", error);
+      },
+    });
+  };
+
+
+  function getCategories() {
+    ajaxRequest({
+      url: "http://localhost:8080/api/v1/categorys",
+      success: function (response) {
+        if (response) {
+          const categories = response?.content;
+          renderListCategory(categories);
+        }
+      },
+      error: function (error) {
+        console.log("error 11111", error);
+      },
+    })
+  }
+
+  function manufactures() {
+    ajaxRequest({
+      url: "http://localhost:8080/api/v1/manufacturers",
+      success: function (response) {
+        if (response) {
+          const manufactures = response?.content;
+          renderListManufacture(manufactures);
+        }
+      },
+      error: function (error) {
+        console.log("error 11111", error);
+      },
+    })
+  };
+  getProducts();
+  manufactures();
+  getCategories();
   function resetForm() {
     $("#productForm")[0].reset();
     $("#id").prop("disabled", false);
@@ -11,7 +73,27 @@ $(document).ready(function () {
     resetForm();
     $("#productModal").modal("show");
   });
+  $('.btnClass').click(function () {
+    var buttonValue = $(this).text();
+    console.log('buttonValue', buttonValue);
+    var products = JSON.parse(localStorage.getItem("products")) || [];
+    var productFilters = products.filter(function (product) {
+      return product.manufacture.toUpperCase() === buttonValue.toUpperCase();
+    })
+    console.log('productFilters', productFilters);
+    // localStorage.setItem("products", JSON.stringify(productFilters));
+    renderListProduct(productFilters);
+  });
 
+  $('#categorySearch').on('change', function () {
+    const selectedValue = $(this).val();
+    console.log('selectedValue', selectedValue);
+    var product = JSON.parse(localStorage.getItem("products")) || [];
+    var productFilters = product.filter(function (product) {
+      return product.categories.toUpperCase() === selectedValue.toUpperCase();
+    })
+    renderListProduct(productFilters);
+  });
 
   $('#image').change(function () {
     const file = this.files[0];
@@ -24,7 +106,7 @@ $(document).ready(function () {
     } else {
       $('#imagePreview').hide();
     }
-  })
+  });
 
   $("#saveChanges").click(function () {
     const imageInput = $("#image")[0];
@@ -64,9 +146,11 @@ $(document).ready(function () {
 
     localStorage.setItem("products", JSON.stringify(products));
     $("#productModal").modal("hide");
-    renderListProduct();
+    renderListProduct(products);
   });
-  renderListProduct();
+
+  const products = JSON.parse(localStorage.getItem("products")) || [];
+  renderListProduct(products);
   $("#productModal").modal("hide");
 });
 
@@ -102,11 +186,10 @@ function deleteProduct(id) {
   var products = JSON.parse(localStorage.getItem("products")) || [];
   products = products.filter((product) => parseInt(product.id) !== parseInt(id));
   localStorage.setItem("products", JSON.stringify(products));
-  renderListProduct();
+  renderListProduct(products);
 }
 
-function renderListProduct() {
-  const products = JSON.parse(localStorage.getItem("products")) || [];
+function renderListProduct(products) {
   var tbody = $("#tbody");
   tbody.empty();
   console.log("products", products);
@@ -117,10 +200,10 @@ function renderListProduct() {
                         <td>${item.price}</td>
                         <td>${item.info}</td>
                         <td>${item.detail}</td>
-                        <td>${item.star}</td>
-                        <td><img src="${item.image}" alt="${item.name}" class="img-thumbnail" style="max-width: 100px;"></td>
-                        <td>${item.manufacture}</td>
-                        <td>${item.categories}</td>
+                        <td>${item.ratingStar}</td>
+                        <td>${item.imageName}</td>
+                        <td>${item.manufacturerName}</td>
+                        <td>${item.categoryName}</td>
                         <td><button type="button" class="btn btn-warning" onclick="editProduct(${item.id})">Edit</button></td>
                         <td><button type="button" class="btn btn-danger" onclick="deleteProduct(${item.id})">Delete</button></td>
                     </tr>`;
