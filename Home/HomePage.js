@@ -64,6 +64,9 @@ function renderListProduct() {
             <div class="card-body">
                 <h5 class="card-title">${product.name}</h5>
                 <p class="card-text">${product.info}</p>
+                <p class="card-text">${product.price}
+                    <button type="button" class="btn btn-primary">Mua ngay</button>
+                </p>
             </div>
         </div>
     </div>`);

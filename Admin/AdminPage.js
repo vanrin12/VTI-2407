@@ -1,16 +1,61 @@
 let currentProductId = null;
 $(document).ready(function () {
+  function encodeBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function getProducts() {
+    var username = 'admin';
+    var password = '123456';
+    var credentials = encodeBase64(`${username}:${password}`);
+    $.ajax({
+      type: "GET",
+      url: "http://localhost:8081/api/v1/products",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+      },
+      success: function (data) {
+        console.log("data", data);
+        localStorage.setItem("products", JSON.stringify(data));
+        renderListProduct(data);
+      },
+      error: function (error) {
+        console.log("error", error);
+      },
+    })
+  }
+  getProducts();
+  
   function resetForm() {
     $("#productForm")[0].reset();
     $("#id").prop("disabled", false);
   }
-
   $("#addProductButton").click(function () {
     $("#modalTitle").text("Add New Product");
     $("#saveChanges").text("Save changes");
     resetForm();
     $("#productModal").modal("show");
   });
+
+  $('.btnClass').click(function () {
+    var buttonValue = $(this).text();
+    console.log('buttonValue',buttonValue);
+    var products = JSON.parse(localStorage.getItem("products")) || [];
+    var productFilters = products.filter(function (product) {
+      return product.manufacture.toUpperCase() === buttonValue.toUpperCase();
+    })
+    console.log('productFilters',productFilters);
+    renderListProduct(productFilters);
+  });
+  
+  $('#categorySearch').on('change',function () {
+     const selectedValue = $(this).val();
+     console.log('selectedValue', selectedValue);
+     var products = JSON.parse(localStorage.getItem("products")) || [];
+     var productFilters = products.filter(function (product) {
+       return product.categories.toUpperCase() === selectedValue.toUpperCase();
+     })
+     renderListProduct(productFilters);
+  })
 
 
   $('#image').change(function () {
@@ -64,9 +109,10 @@ $(document).ready(function () {
 
     localStorage.setItem("products", JSON.stringify(products));
     $("#productModal").modal("hide");
-    renderListProduct();
+    renderListProduct(products);
   });
-  renderListProduct();
+  var products = JSON.parse(localStorage.getItem("products")) || [];
+  renderListProduct(products);
   $("#productModal").modal("hide");
 });
 
@@ -102,11 +148,10 @@ function deleteProduct(id) {
   var products = JSON.parse(localStorage.getItem("products")) || [];
   products = products.filter((product) => parseInt(product.id) !== parseInt(id));
   localStorage.setItem("products", JSON.stringify(products));
-  renderListProduct();
+  renderListProduct(products);
 }
 
-function renderListProduct() {
-  const products = JSON.parse(localStorage.getItem("products")) || [];
+function renderListProduct(products) {
   var tbody = $("#tbody");
   tbody.empty();
   console.log("products", products);
@@ -126,4 +171,9 @@ function renderListProduct() {
                     </tr>`;
     tbody.append(row);
   });
+}
+
+
+function LoadContentPage() {
+  $(".product_list").load("./productForm.html");
 }
