@@ -35,8 +35,9 @@ $(document).ready(function () {
       url: "http://localhost:8080/api/v1/categorys",
       success: function (response) {
         if (response) {
-          const categories = response?.content;
-          renderListCategory(categories);
+          const $categories = $('#categories');
+          ;
+          renderListCategory(response, $categories);
         }
       },
       error: function (error) {
@@ -50,8 +51,9 @@ $(document).ready(function () {
       url: "http://localhost:8080/api/v1/manufacturers",
       success: function (response) {
         if (response) {
-          const manufactures = response?.content;
-          renderListManufacture(manufactures);
+          const $manufactureSelect = $('#manufacture');
+
+          populateManufactureSelect(response, $manufactureSelect);
         }
       },
       error: function (error) {
@@ -153,6 +155,21 @@ $(document).ready(function () {
   renderListProduct(products);
   $("#productModal").modal("hide");
 });
+
+function populateManufactureSelect(options, targetSelect) {
+
+  // Clear existing options
+  targetSelect.empty();
+
+  // Iterate over the options array and create option elements
+  options.forEach(option => {
+    const $option = $('<option>', {
+      value: option.id,
+      text: option.name
+    });
+    targetSelect.append($option);
+  });
+}
 
 function populateForm(product) {
   $("#id").val(product.id).prop("disabled", true);
