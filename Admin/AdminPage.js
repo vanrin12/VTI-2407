@@ -1,18 +1,7 @@
 let currentProductId = null;
-const categoryList = [
-  {
-    id: 1,
-    value: "Điện thoại",
-  },
-  {
-
-    id: 2,
-    valiue: "Tablet",
-  }, {
-    id: 3,
-    valiue: "Laptop",
-  }
-]
+let categoryList = [];
+let manufactureList = [];
+let productList = [];
 $(document).ready(function () {
   function getProducts() {
     ajaxRequest({
@@ -20,6 +9,7 @@ $(document).ready(function () {
       success: function (response) {
         if (response) {
           const products = response?.content;
+          productList = products;
           renderListProduct(products);
         }
       },
@@ -35,6 +25,7 @@ $(document).ready(function () {
       url: "http://localhost:8080/api/v1/categorys",
       success: function (response) {
         if (response) {
+          categoryList = response;
           const $categories = $('#categories');
           populateManufactureSelect(response, $categories);
         }
@@ -49,9 +40,9 @@ $(document).ready(function () {
     ajaxRequest({
       url: "http://localhost:8080/api/v1/manufacturers",
       success: function (response) {
-        if (response) {
+        if (manufactureList) {
           const $manufactureSelect = $('#manufacture');
-
+          manufactureList = response;
           populateManufactureSelect(response, $manufactureSelect);
         }
       },
@@ -76,19 +67,15 @@ $(document).ready(function () {
   });
   $('.btnClass').click(function () {
     var buttonValue = $(this).text();
-    console.log('buttonValue', buttonValue);
     var products = JSON.parse(localStorage.getItem("products")) || [];
     var productFilters = products.filter(function (product) {
       return product.manufacture.toUpperCase() === buttonValue.toUpperCase();
     })
-    console.log('productFilters', productFilters);
-    // localStorage.setItem("products", JSON.stringify(productFilters));
     renderListProduct(productFilters);
   });
 
   $('#categorySearch').on('change', function () {
     const selectedValue = $(this).val();
-    console.log('selectedValue', selectedValue);
     var product = JSON.parse(localStorage.getItem("products")) || [];
     var productFilters = product.filter(function (product) {
       return product.categories.toUpperCase() === selectedValue.toUpperCase();
@@ -111,6 +98,7 @@ $(document).ready(function () {
 
   $("#saveChanges").click(function () {
     const imageInput = $("#image")[0];
+
     const product = {
       name: $("#name").val(),
       price: $("#price").val(),
@@ -128,17 +116,26 @@ $(document).ready(function () {
       $('#imagePreview').hide();
     }
 
-    const products = JSON.parse(localStorage.getItem("products")) || [];
     const isEditMode = localStorage.getItem("isEditMode") === "1";
     if (isEditMode) {
-      const productIndex = products.findIndex(
-        (p) => parseInt(p.id) === parseInt(currentProductId)
-      );
-      if (productIndex !== -1) {
-        products[productIndex] = product;
-      }
-
-      localStorage.removeItem("isEditMode");
+      console.log('currentProductId', currentProductId);
+      ajaxRequest({
+        url: `http://localhost:8080/api/v1/products/${currentProductId}`,
+        method: "PUT",
+        data: product,
+        success: function (response) {
+          if (response) {
+            $("#productModal").modal("hide");
+            console.log('productList', productList);
+            const index = productList.findIndex((p) => p.id === response.id);
+            productList[index] = response;
+            renderListProduct(productList);
+          }
+        },
+        error: function (error) {
+          console.log("error 11111", error);
+        },
+      })
     } else {
       ajaxRequest({
         url: "http://localhost:8080/api/v1/products",
@@ -173,7 +170,6 @@ function populateManufactureSelect(options, targetSelect) {
 
   // Iterate over the options array and create option elements
   options.forEach(option => {
-    console.log('option', option);
     const $option = $('<option>', {
       value: option.id,
       text: option.name
@@ -183,13 +179,15 @@ function populateManufactureSelect(options, targetSelect) {
 }
 
 function populateForm(product) {
+  const category = categoryList.find((c) => c.name === product.categoryName);
+  const manufacture = manufactureList.find((m) => m.name === product.manufacturerName);
   $("#name").val(product.name);
   $("#price").val(product.price);
   $("#info").val(product.info);
   $("#detail").val(product.detail);
-  $("#star").val(product.star);
-  $("#manufacture").val(product.manufacture);
-  $("#categories").val(product.categories);
+  $("#star").val(product.ratingStar);
+  $("#manufacture").val(manufacture.id);
+  $("#categories").val(category.id);
 }
 function editProduct(id) {
   currentProductId = id;
@@ -213,8 +211,20 @@ function editProduct(id) {
 
 function deleteProduct(id) {
   var products = JSON.parse(localStorage.getItem("products")) || [];
-  products = products.filter((product) => parseInt(product.id) !== parseInt(id));
-  localStorage.setItem("products", JSON.stringify(products));
+  ajaxRequest({
+    url: `http://localhost:8080/api/v1/products/${id}`,
+    method: "DELETE",
+    success: function (response) {
+      if (response) {
+        const index = productList.findIndex((p) => p.id === id);
+        productList.splice(index, 1);
+        renderListProduct(productList);
+      }
+    },
+    error: function (error) {
+      console.log("error 11111", error);
+    },
+  })
   renderListProduct(products);
 }
 
