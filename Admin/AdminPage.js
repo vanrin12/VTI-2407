@@ -118,7 +118,6 @@ $(document).ready(function () {
 
     const isEditMode = localStorage.getItem("isEditMode") === "1";
     if (isEditMode) {
-      console.log('currentProductId', currentProductId);
       ajaxRequest({
         url: `http://localhost:8080/api/v1/products/${currentProductId}`,
         method: "PUT",
@@ -144,8 +143,8 @@ $(document).ready(function () {
         success: function (response) {
           if (response) {
             $("#productModal").modal("hide");
-            products.push(response);
-            renderListProduct(products);
+            productList.push(response);
+            renderListProduct(productList);
           }
         },
         error: function (error) {
