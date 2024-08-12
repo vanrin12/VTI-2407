@@ -2,8 +2,6 @@ import Button from "../Button";
 function TableRow({ rowItem }) {
     const renderRowItem = () => {
         return Object.keys(rowItem).map((key) => {
-            console.log(Object.keys(rowItem));
-
             return <td>{rowItem[key]}</td>;
         });
     };

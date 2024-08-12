@@ -9,8 +9,6 @@ class Table extends Component {
     state = {}
     render() {
         const { listTableHead, accountList } = this.props;
-        console.log('accountList', accountList);
-        
         const renderTableRow = accountList && accountList.map((item) => {
             return <TableRow key={item.id} rowItem={item} />
         })
