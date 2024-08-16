@@ -24,7 +24,7 @@ class AccountListContainer extends Component {
         const username = 'admin';
         const password = '123456';
         const credentials = btoa(`${username}:${password}`);
-        fetch('http://localhost:8080/api/v1/accounts', {
+        fetch(process.env.REACT_APP_API_URL, {
             method: 'GET',
             headers: {
                 'Authorization': `Basic ${credentials}`,
@@ -59,16 +59,25 @@ class AccountListContainer extends Component {
         this.getAccountList();
     }
     handleOnChange = (e) => {
-        const {name, value} = e.target;
-        this.setState({
-            account: {
-                ...this.state.account,
-                [name]: value
-            }
-        })
+        const {name, value, type} = e.target;
+        if (type === 'file') {
+            const file = e.target.files[0];
+            this.setState({
+                account: {
+                    ...this.state.account,
+                    [name]: file
+                }
+            })
+        } else {
+            this.setState({
+                account: {
+                    ...this.state.account,
+                    [name]: value
+                }
+            })
+        }
     }
     render() {
-        console.log('state', this.state.account);
         
         return (
             <>
@@ -85,8 +94,20 @@ class AccountListContainer extends Component {
                             <Form.Control type="email" name="email" placeholder="name@example.com" onChange={this.handleOnChange}/>
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                            <Form.Label>Example textarea</Form.Label>
-                            <Form.Control as="textarea" rows={3} />
+                            <Form.Label>User Name</Form.Label>
+                            <Form.Control type='text' name="username" onChange={this.handleOnChange}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                            <Form.Label>Full Name</Form.Label>
+                            <Form.Control type='text' name="fullname" onChange={this.handleOnChange}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                            <Form.Label>Image Name</Form.Label>
+                            <Form.Control type='file' name="imageName" onChange={this.handleOnChange}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                            <Form.Label>Address</Form.Label>
+                            <Form.Control as="textarea" name="address" onChange={this.handleOnChange} cols={3}/>
                         </Form.Group>
                     </Form>
                 </ModalCustom>
